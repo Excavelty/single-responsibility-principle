@@ -25,4 +25,12 @@ public class Constraint {
     public boolean isHeaderRequired() {
         return required;
     }
+
+    public void setHeaderRequired(boolean required) {
+        this.required = required;
+    }
+
+    public void setHeaderName(String name) {
+        this.name = name;
+    }
 }

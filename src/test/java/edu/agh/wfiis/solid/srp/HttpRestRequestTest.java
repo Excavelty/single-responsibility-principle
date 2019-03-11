@@ -2,11 +2,11 @@ package edu.agh.wfiis.solid.srp;
 
 
 import edu.agh.wfiis.solid.srp.example1.HttpRestRequest;
-import edu.agh.wfiis.solid.srp.example1.model.MuleMessage;
-import edu.agh.wfiis.solid.srp.example1.model.Constraints;
 import edu.agh.wfiis.solid.srp.example1.model.Constraint;
+import edu.agh.wfiis.solid.srp.example1.model.Constraints;
+import edu.agh.wfiis.solid.srp.example1.model.MuleMessage;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public class HttpRestRequestTest {
 
@@ -24,25 +24,23 @@ public class HttpRestRequestTest {
 
     @org.junit.Test
     public void validate() throws Exception {
-        testMessage.setInboundProperty("http.headers", new HashMap<String, String>() {{
-            put(CONTENT_TYPE_HEADER_NAME, "application/json");
-        }});
+        testMessage.setHeader(CONTENT_TYPE_HEADER_NAME, "application/json");
         new HttpRestRequest(testMessage).validate(VALIDATION_CONTRACT);
     }
 
     private static Constraints prepareValidationContract() {
         Constraint contentType = new Constraint();
-        contentType.setDisplayName(CONTENT_TYPE_HEADER_NAME);
-        contentType.setRequired(true);
+        contentType.setHeaderName(CONTENT_TYPE_HEADER_NAME);
+        contentType.setHeaderRequired(true);
 
         Constraint accept = new Constraint();
-        accept.setDisplayName(ACCEPT_HEADER_NAME);
-        accept.setDefaultValue("application/json;q=0.9,*/*;q=0.8");
+        accept.setHeaderName(ACCEPT_HEADER_NAME);
+        accept.setHeaderName("application/json;q=0.9,*/*;q=0.8");
 
         Constraints constraints = new Constraints();
-        constraints.setHeaders(new HashMap<String, Constraint>() {{
-            put(CONTENT_TYPE_HEADER_NAME, contentType);
-            put(ACCEPT_HEADER_NAME, accept);
+        constraints.add(new ArrayList<Constraint>() {{
+            add(contentType);
+            add(accept);
         }});
         return constraints;
     }

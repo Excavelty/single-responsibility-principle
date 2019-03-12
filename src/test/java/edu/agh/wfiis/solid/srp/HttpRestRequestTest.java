@@ -1,11 +1,12 @@
 package edu.agh.wfiis.solid.srp;
 
 
-import edu.agh.wfiis.solid.srp.model.Message;
-import edu.agh.wfiis.solid.srp.model.raml.Constraints;
-import edu.agh.wfiis.solid.srp.model.raml.Header;
+import edu.agh.wfiis.solid.srp.example1.HttpRestRequest;
+import edu.agh.wfiis.solid.srp.example1.model.Constraint;
+import edu.agh.wfiis.solid.srp.example1.model.Constraints;
+import edu.agh.wfiis.solid.srp.example1.model.MuleMessage;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public class HttpRestRequestTest {
 
@@ -14,34 +15,32 @@ public class HttpRestRequestTest {
 
     private static final Constraints VALIDATION_CONTRACT = prepareValidationContract();
 
-    private Message testMessage;
+    private MuleMessage testMessage;
 
     @org.junit.Before
     public void setUp() throws Exception {
-        testMessage = new Message();
+        testMessage = new MuleMessage();
     }
 
     @org.junit.Test
     public void validate() throws Exception {
-        testMessage.setInboundProperty("http.headers", new HashMap<String, String>() {{
-            put(CONTENT_TYPE_HEADER_NAME, "application/json");
-        }});
+        testMessage.setHeader(CONTENT_TYPE_HEADER_NAME, "application/json");
         new HttpRestRequest(testMessage).validate(VALIDATION_CONTRACT);
     }
 
     private static Constraints prepareValidationContract() {
-        Header contentType = new Header();
-        contentType.setDisplayName(CONTENT_TYPE_HEADER_NAME);
-        contentType.setRequired(true);
+        Constraint contentType = new Constraint();
+        contentType.setHeaderName(CONTENT_TYPE_HEADER_NAME);
+        contentType.setHeaderRequired(true);
 
-        Header accept = new Header();
-        accept.setDisplayName(ACCEPT_HEADER_NAME);
-        accept.setDefaultValue("application/json;q=0.9,*/*;q=0.8");
+        Constraint accept = new Constraint();
+        accept.setHeaderName(ACCEPT_HEADER_NAME);
+        accept.setHeaderName("application/json;q=0.9,*/*;q=0.8");
 
         Constraints constraints = new Constraints();
-        constraints.setHeaders(new HashMap<String, Header>() {{
-            put(CONTENT_TYPE_HEADER_NAME, contentType);
-            put(ACCEPT_HEADER_NAME, accept);
+        constraints.add(new ArrayList<Constraint>() {{
+            add(contentType);
+            add(accept);
         }});
         return constraints;
     }

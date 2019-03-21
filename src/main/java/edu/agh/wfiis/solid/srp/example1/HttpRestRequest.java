@@ -9,8 +9,8 @@ import java.text.MessageFormat;
 
 public class HttpRestRequest {
 
-    protected MuleMessage muleMessage;
-    protected Constraints validationConstraints;
+    private MuleMessage muleMessage;
+    private Constraints validationConstraints;
 
     public HttpRestRequest(MuleMessage muleMessage) {
         this.muleMessage = muleMessage;
@@ -18,28 +18,64 @@ public class HttpRestRequest {
 
     public MuleMessage validate(Constraints validationConstraints) throws InvalidHeaderException {
         this.validationConstraints = validationConstraints;
-        processHeaders();
+        validateHeaders();
+        setDefaultValues();
         return muleMessage;
     }
 
-    private void processHeaders() throws InvalidHeaderException {
+    private void validateHeaders() throws InvalidHeaderException {
         for (Constraint constraint : validationConstraints.getHeaderConstraints()) {
-            String headerName = constraint.getHeaderName();
-            String headerValue = muleMessage.getHeader(headerName);
+            validateHeader(constraint);
+        }
+    }
 
-            if (headerValue == null && constraint.isHeaderRequired()) {
-                throw new InvalidHeaderException("Required header " + headerName + " not specified");
-            }
+    private void setDefaultValues()  {
+        for (Constraint constraint : validationConstraints.getHeaderConstraints()) {
+            setDefaultValue(constraint);
+        }
+    }
 
-            if (headerValue == null && constraint.getDefaultValue() != null) {
-                muleMessage.setHeader(headerName, constraint.getDefaultValue());
-            }
+    private ValidationResult validateHeader(Constraint constraint){
+        String headerName = constraint.getHeaderName();
+        String headerValue = muleMessage.getHeader(headerName);
 
-            if (headerValue != null) {
-                if (!constraint.validate(headerValue)) {
-                    throw new InvalidHeaderException(MessageFormat.format("Invalid value format for header {0}.", headerName));
-                }
-            }
+        if (headerValue == null && constraint.isHeaderRequired()) {
+            return ValidationResult.invalid(MessageFormat.format("Required header \" {0} \" not specified", headerName));
+        }
+
+        if (headerValue != null && !constraint.validate(headerValue)) {
+            return ValidationResult.invalid(MessageFormat.format("Invalid value format for header {0}.", headerName));
+        }
+        return ValidationResult.valid();
+    }
+
+    private void setDefaultValue(Constraint constraint) {
+        String headerName = constraint.getHeaderName();
+        String headerValue = muleMessage.getHeader(headerName);
+
+        if (headerValue == null && constraint.getDefaultValue() != null) {
+            muleMessage.setHeader(headerName, constraint.getDefaultValue());
+        }
+    }
+
+    public static class ValidationResult{
+
+        private String message;
+
+        private ValidationResult(String message){
+            this.message = message;
+        }
+
+        public boolean isValid(){
+            return message!=null;
+        }
+
+        public static ValidationResult  valid(){
+            return new ValidationResult(null);
+        }
+
+        public static ValidationResult  invalid(String error){
+            return new ValidationResult(error);
         }
     }
 }

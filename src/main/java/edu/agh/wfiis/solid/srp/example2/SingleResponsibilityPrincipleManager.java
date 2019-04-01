@@ -1,6 +1,8 @@
 package edu.agh.wfiis.solid.srp.example2;
 import java.io.File;
 
+//TODO: refactor this :)
+
 public class SingleResponsibilityPrincipleManager {
 
     public String provideDescription() {

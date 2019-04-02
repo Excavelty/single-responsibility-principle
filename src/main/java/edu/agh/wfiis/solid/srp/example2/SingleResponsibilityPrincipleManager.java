@@ -3,7 +3,7 @@ import java.io.File;
 
 public class SingleResponsibilityPrincipleManager {
 
-    public String provideDescription() {
+    public String getDescription() {
         return "SRP description";
     }
 
@@ -21,9 +21,12 @@ public class SingleResponsibilityPrincipleManager {
         /* some magic happens here, irrelevant from this example perspective...*/
         return "bad code from class loader";
     }
+}
 
+public class Coursework{
+    
     public String generateCourseworkForStudents() {
         /* some magic happens here, irrelevant from this example perspective...*/
         return "very difficult coursework";
-    }
+    }   
 }

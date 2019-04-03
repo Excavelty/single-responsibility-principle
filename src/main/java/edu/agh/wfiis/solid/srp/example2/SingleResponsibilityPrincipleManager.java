@@ -14,6 +14,7 @@ public class StudentsCourseworkGenerator{
 }
 
 class CodeReader{
+    
     public String extractBadCodeFromFile(File file) {
         /* some magic happens here, irrelevant from this example perspective...*/
         return "bad code from file";

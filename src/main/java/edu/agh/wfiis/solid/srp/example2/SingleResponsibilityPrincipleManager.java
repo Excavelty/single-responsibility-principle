@@ -1,29 +1,57 @@
 package edu.agh.wfiis.solid.srp.example2;
 import java.io.File;
 
-public class SingleResponsibilityPrincipleManager {
+interface Describable {
+    String provideDescription();
+}
+
+class CodeCleaner implements Describable {
+
+    private String refactoredCode;
 
     public String provideDescription() {
         return "SRP description";
     }
 
-    public String refactorCode(String badCode) {
+    public void refactorCode(String badCode) {
         /* some magic happens here, irrelevant from this example perspective...*/
-        return "code refactored using SRP";
+        refactoredCode = "code refactored using SRP";
     }
 
-    public String extractBadCodeFromFile(File file) {
+    public String getRefactoredCode() {
+        return refactoredCode;
+    }
+}
+
+class CourseworkGenerator {
+
+    private String coursework;
+
+    public void generateCourseworkForStudents() {
         /* some magic happens here, irrelevant from this example perspective...*/
-        return "bad code from file";
+        coursework = "very difficult coursework";
     }
 
-    public String extractBadCodeFromClassPath(ClassLoader classLoader) {
+    public String getCoursework() {
+        return coursework;
+    }
+}
+
+class BadCodeExtractor {
+
+    private String extractedBadCode;
+
+    public void extractBadCode(File file) {
         /* some magic happens here, irrelevant from this example perspective...*/
-        return "bad code from class loader";
+        extractedBadCode = "bad code from file";
     }
 
-    public String generateCourseworkForStudents() {
+    public void extractBadCode(ClassLoader classLoader) {
         /* some magic happens here, irrelevant from this example perspective...*/
-        return "very difficult coursework";
+        extractedBadCode = "bad code from class loader";
+    }
+
+    public String getExtractedBadCode() {
+        return extractedBadCode;
     }
 }

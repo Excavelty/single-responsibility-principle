@@ -1,8 +1,8 @@
 package edu.agh.wfiis.solid.srp.example2;
 import java.io.File;
 
-public class SingleResponsibilityPrincipleManager {
-
+public class CodeRefactorer {
+    
     public String provideDescription() {
         return "SRP description";
     }

@@ -31,7 +31,7 @@ class BadCodeExtractor {
 
 class Coursework {
 
-        public static String generateCourseworkForStudents() {
+        public static String generateBadCodeCoursework() {
         /* some magic happens here, irrelevant from this example perspective...*/
         return "very difficult coursework";
     }

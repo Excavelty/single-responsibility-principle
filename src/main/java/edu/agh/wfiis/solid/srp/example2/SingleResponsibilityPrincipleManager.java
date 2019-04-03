@@ -15,14 +15,14 @@ public class StudentsCourseworkGenerator{
 
 class CodeReader{
     
-    public String extractCodeFromFile(File file) {
+    public String readCodeFromFile(File file) {
         /* some magic happens here, irrelevant from this example perspective...*/
-        return "bad code from file";
+        return "code from file";
     }
 
-    public String extractCodeFromClassPath(ClassLoader classLoader) {
+    public String readCodeFromClassPath(ClassLoader classLoader) {
         /* some magic happens here, irrelevant from this example perspective...*/
-        return "bad code from class loader";
+        return "code from class loader";
     }  
 }
 

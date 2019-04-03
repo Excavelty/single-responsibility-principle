@@ -3,7 +3,7 @@ import java.io.File;
 
 public class BadCodeExtractor {
 
-	public String extractBadCodeFromFile(File file) throws IOException {
+    public String extractBadCodeFromFile(File file) throws IOException {
         /* some magic happens here, irrelevant from this example perspective...*/
         return "bad code from file";
     }

@@ -12,17 +12,26 @@ public class SingleResponsibilityPrincipleManager {
         return "code refactored using SRP";
     }
 
-    public String extractBadCodeFromFile(File file) {
+}
+
+
+class BadCodeExtractor {
+
+    public static String extractBadCodeFromFile(File file) {
         /* some magic happens here, irrelevant from this example perspective...*/
         return "bad code from file";
     }
 
-    public String extractBadCodeFromClassPath(ClassLoader classLoader) {
+    public static String extractBadCodeFromClassPath(ClassLoader classLoader) {
         /* some magic happens here, irrelevant from this example perspective...*/
         return "bad code from class loader";
     }
+}
 
-    public String generateCourseworkForStudents() {
+
+class Coursework {
+
+        public static String generateCourseworkForStudents() {
         /* some magic happens here, irrelevant from this example perspective...*/
         return "very difficult coursework";
     }

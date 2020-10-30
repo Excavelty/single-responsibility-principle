@@ -29,7 +29,7 @@ public class HttpRestRequest {
         if(!validationErrors.isEmpty()) throw new InvalidHeaderException(validationErrors.get(0).getError());
 
         Map<String, String> defaultHeaderValuesByHeaderNames = validationConstraints.getHeaderConstraints().stream().collect(Collectors.toMap(Constraint::getHeaderName, Constraint::getDefaultValue));
-        setMissingHeadersDefaultValueInMuleMassageClassField(defaultHeaderValuesByHeaderNames);
+        setMissingHeadersDefaultValueInMuleMessageClassField(defaultHeaderValuesByHeaderNames);
 
         return muleMessage;
     }
@@ -53,7 +53,7 @@ public class HttpRestRequest {
     }
 
 
-    private void setMissingHeadersDefaultValueInMuleMassageClassField(Map<String, String> defaultHeaderValuesByHeaderNames){
+    private void setMissingHeadersDefaultValueInMuleMessageClassField(Map<String, String> defaultHeaderValuesByHeaderNames){
         BiPredicate<String, String> shouldSetDefaultHeaderValue = (headerValue, defaultHeaderValue) -> headerValue == null && defaultHeaderValue != null;
 
         defaultHeaderValuesByHeaderNames.entrySet().stream()

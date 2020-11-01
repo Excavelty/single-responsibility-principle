@@ -19,54 +19,50 @@ public class HttpRestRequest {
 
     public MuleMessage validate(Constraints validationConstraints) throws InvalidHeaderException {
         this.validationConstraints = validationConstraints;
+        List<HeaderValidationError> headerValidationErrors = validateHeaders(muleMessage, validationConstraints.getHeaderConstraints());
 
-        List<HeaderValidationError> headerValidationErrors = validateHeaders(validationConstraints.getHeaderConstraints());
-
-        if(!headerValidationErrors.isEmpty()) {
+        if (!headerValidationErrors.isEmpty()) {
             throw new InvalidHeaderException(headerValidationErrors.get(0).getError());
         }
 
-        setMissingHeadersDefaultValues();
+        setMissingHeadersDefaultValuesInMessage();
         return muleMessage;
     }
 
-    private List<HeaderValidationError> validateHeaders(Map<String, String> headerValuesByNames, List<Constraint> headerConstraints) {
+    private List<HeaderValidationError> validateHeaders(MuleMessage muleMessage, List<Constraint> headerConstraints) {
         List<HeaderValidationError> errorMessages = new ArrayList<>();
-
         for (Constraint constraint : headerConstraints) {
             String headerName = constraint.getHeaderName();
             String headerValue = muleMessage.getHeader(headerName);
-
-            if (headerValue == null && constraint.isHeaderRequired()) {
-                errorMessages.add(new MissingHeaderValidationError(headerName));
-            }
-
-            if (headerValue != null) {
-                if (!constraint.validate(headerValue)) {
-                    errorMessages.add(new InvalidHeaderValueValidationError(headerName, headerValue));
-                }
-            }
+            errorMessages.addAll(validateSingleHeader(headerName, headerValue, constraint));
         }
-
         return errorMessages;
     }
 
-    private void setMissingHeadersDefaultValuesInMessage( ){
+    private List<HeaderValidationError> validateSingleHeader(String headerName, String headerValue, Constraint constraint) {
+        List<HeaderValidationError> errorMessages = new ArrayList<>();
+        if (headerValue == null && constraint.isHeaderRequired()) {
+            errorMessages.add(new MissingHeaderValidationError(headerName));
+        }
+
+        if (headerValue != null && !constraint.validate(headerValue)) {
+            errorMessages.add(new InvalidHeaderValueValidationError(headerName, headerValue));
+        }
+        return errorMessages;
+    }
+
+    private void setMissingHeadersDefaultValuesInMessage() {
         for (Constraint constraint : validationConstraints.getHeaderConstraints()) {
-            tryToSetDefaultHeaderValue(constraint,muleMessage);
+            tryToSetDefaultHeaderValue(constraint, muleMessage);
         }
     }
 
-    private boolean tryToSetDefaultHeaderValue(Constraint constraint, MuleMessage muleMessage){
-        if (muleMessage.getHeader(constraint.getHeaderName()) == null && constraint.getDefaultValue() != null) {
-            setDefaultHeaderValue(constraint, muleMessage);
-            return true;
+    private void tryToSetDefaultHeaderValue(Constraint constraint, MuleMessage muleMessage) {
+        String constraintHeaderName = constraint.getHeaderName();
+        String muleMessageHeader = muleMessage.getHeader(constraintHeaderName);
+        if (muleMessageHeader == null && constraint.getDefaultValue() != null) {
+            muleMessage.setHeader(constraintHeaderName, constraint.getDefaultValue());
         }
-        return false;
-    }
-
-    private void setDefaultHeaderValue(Constraint constraint, MuleMessage muleMessage){
-        muleMessage.setHeader(constraint.getHeaderName(), constraint.getDefaultValue());
     }
 }
 
@@ -74,7 +70,7 @@ interface HeaderValidationError {
     String getError();
 }
 
-class MissingHeaderValidationError  implements HeaderValidationError {
+class MissingHeaderValidationError implements HeaderValidationError {
     private final String headerName;
 
     public MissingHeaderValidationError(String headerName) {
@@ -87,7 +83,7 @@ class MissingHeaderValidationError  implements HeaderValidationError {
     }
 }
 
-class InvalidHeaderValueValidationError  implements HeaderValidationError {
+class InvalidHeaderValueValidationError implements HeaderValidationError {
     private final String headerName;
     private final String headerValue;
 

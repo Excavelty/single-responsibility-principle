@@ -10,36 +10,39 @@ import java.text.MessageFormat;
 public class HttpRestRequest {
 
     protected MuleMessage muleMessage;
-    protected Constraints validationConstraints;
 
     public HttpRestRequest(MuleMessage muleMessage) {
         this.muleMessage = muleMessage;
     }
 
     public MuleMessage validate(Constraints validationConstraints) throws InvalidHeaderException {
-        this.validationConstraints = validationConstraints;
-        processHeaders();
-        return muleMessage;
-    }
 
-    private void processHeaders() throws InvalidHeaderException {
         for (Constraint constraint : validationConstraints.getHeaderConstraints()) {
             String headerName = constraint.getHeaderName();
             String headerValue = muleMessage.getHeader(headerName);
-
-            if (headerValue == null && constraint.isHeaderRequired()) {
-                throw new InvalidHeaderException("Required header " + headerName + " not specified");
-            }
-
+    
+            validateHeader(constraint, headerValue);
+    
             if (headerValue == null && constraint.getDefaultValue() != null) {
                 muleMessage.setHeader(headerName, constraint.getDefaultValue());
             }
-
-            if (headerValue != null) {
-                if (!constraint.validate(headerValue)) {
-                    throw new InvalidHeaderException(MessageFormat.format("Invalid value format for header {0}.", headerName));
-                }
-            }
         }
+
+        return muleMessage;
     }
+    
+    private void validateHeader(Constraint constraint, String headerValue) throws InvalidHeaderException {
+
+        if (headerValue == null) {
+            String errorMsg = String.format("Required header is not specified: %s", headerName);
+            if (constraint.isHeaderRequired() && constraint.isHeaderRequired())
+                throw new InvalidHeaderException(errorMsg);
+        } else {
+            String errorMsg = String.format("Invalid value format for header: %s", headerName);
+            if (!constraint.validate(headerValue))
+                throw new InvalidHeaderException(errorMsg);
+        }
+
+    }
+    
 }

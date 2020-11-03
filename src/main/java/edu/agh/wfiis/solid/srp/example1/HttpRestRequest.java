@@ -22,17 +22,18 @@ public class HttpRestRequest {
             String headerValue = muleMessage.getHeader(headerName);
     
             validateHeader(constraint, headerValue);
-    
-            if (headerValue == null && constraint.getDefaultValue() != null) {
-                muleMessage.setHeader(headerName, constraint.getDefaultValue());
-            }
+            setMissingHeaderValueToDefault(headerName, constraint);
         }
 
         return muleMessage;
     }
-    
-    private void validateHeader(Constraint constraint, String headerValue) throws InvalidHeaderException {
 
+    private void setMissingHeaderValueToDefault(String headerName, Constraint constraint) {
+        if (headerValue == null && constraint.getDefaultValue() != null) 
+            muleMessage.setHeader(headerName, constraint.getDefaultValue());
+    }
+
+    private void validateHeader(Constraint constraint, String headerValue) throws InvalidHeaderException {
         if (headerValue == null) {
             String errorMsg = String.format("Required header is not specified: %s", headerName);
             if (constraint.isHeaderRequired() && constraint.isHeaderRequired())
@@ -42,7 +43,22 @@ public class HttpRestRequest {
             if (!constraint.validate(headerValue))
                 throw new InvalidHeaderException(errorMsg);
         }
-
     }
-    
+
+    // optional API
+    public void validateAllHeaders(Constraints validationConstraints) throws InvalidHeaderException {
+        for (Constraint constraint : validationConstraints.getHeaderConstraints()) {
+            String headerName = constraint.getHeaderName();
+            String headerValue = muleMessage.getHeader(headerName);
+            validateHeader(constraint, headerValue);
+        }
+    }
+
+    public void fixMissingHeaders(Constraints validationConstraints) {
+        for (Constraint constraint : validationConstraints.getHeaderConstraints()) {
+            String headerName = constraint.getHeaderName();
+            String headerValue = muleMessage.getHeader(headerName);
+            setMissingHeaderValueToDefault(headerName, constraint);
+        }
+    }
 }

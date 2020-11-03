@@ -39,34 +39,45 @@ public class HttpRestRequest {
         }
     }
 
-    private List<HeaderValidationError> validateHeaders(Constraints validationConstraints) {
-        List<HeaderValidationError> validationErrors = new ArrayList<>();
+    private List<HeaderValidationError> assertHeadersMeetConstraints(Constraints validationConstraints) {
+        ValidationResults.Builder builder = new ValidationResults.Builder();
+
         for (Constraint constraint : validationConstraints.getHeaderConstraints()) {
             String headerName = constraint.getHeaderName();
             String headerValue = muleMessage.getHeader(headerName);
 
             if (headerValue == null && constraint.isHeaderRequired()) {
-                validationErrors.add("Required header " + headerName + " not specified");
+                builder.addError(MissingHeader("Required header " + headerName + " not specified"));
             }
 
             if (headerValue != null) {
                 if (!constraint.validate(headerValue)) {
-                    validationErrors.add(MessageFormat.format("Invalid value format for header {0}.", headerName));
+                    builder.addError(InvalidValueFormatInHeader(
+                                        MessageFormat.format("Invalid value format for header {0}.", headerName),
+                                        headerValue));
                 }
             }
         }
 
-        return validationErrors;
+        return builder.build();
     }
 }
 
 abstract class HeaderValidationError {
     protected String headerName;
 
+    HeaderValidationError(String headerName) {
+        this.headerName = headerName;
+    }
+
     abstract public String getErrorMessage();
 }
 
 class MissingHeader extends HeaderValidationError {
+    MissingHeader(String headerName) {
+        super(headerName);
+    }
+
     @Override
     public String getErrorMessage() {
         return "Required header " + headerName + " not specified";
@@ -76,6 +87,11 @@ class MissingHeader extends HeaderValidationError {
 class InvalidValueFormatInHeader extends HeaderValidationError {
     private String headerValue;
 
+    InvalidValueFormatInHeader(String headerName, String headerValue) {
+        super(headerName);
+        this.headerValue = headerValue;
+    }
+    
     @Override
     public String getErrorMessage() {
         return MessageFormat.format("Invalid value {0} for header {1}.", headerValue, headerName);
@@ -85,19 +101,23 @@ class InvalidValueFormatInHeader extends HeaderValidationError {
 class ValidationResults {
     private final List<HeaderValidationError> validationErrors;
 
-    private ValidationResults(Builder builder){
+    private ValidationResults(Builder builder) {
         this.validationErrors = builder.validationErrors;
     }
 
+    public List<HeaderValidationError> getValidationErrors() {
+        return validationErrors;
+    }
+    
     public static class Builder {
         private List<HeaderValidationError> validationErrors = new ArrayList<>();
 
-        public Builder addError(String header){
-            this.validationErrors.add(msg);
+        public Builder addError(HeaderValidationError error) {
+            this.validationErrors.add(error);
             return this;
         }
 
-        public ValidationResults build(){
+        public ValidationResults build() {
             return new ValidationResults(this);
         }
     }
